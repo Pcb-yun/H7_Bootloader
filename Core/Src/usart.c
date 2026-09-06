@@ -21,6 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "Boot.h"
 
 /* USER CODE END 0 */
 
@@ -185,5 +186,14 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 
 /* USER CODE BEGIN 1 */
 
-/* USER CODE END 1 */
+/**
+ * @brief 串口初始化
+ * @return true: 成功, false: 失败
+ */
+bool UART_Init(void)
+{
+  MX_USART1_UART_Init();
+  return true;
+}
 
+/* USER CODE END 1 */

@@ -19,6 +19,9 @@ void Bootloader_main(void);
 void Boot_Exit(void);
 void JumpToApplication(void);
 
+
+bool UART_Init(void);
+bool SPIFlash_Init(uint8_t *pID);
 bool SD_Init(void);
 bool FATFS_Init(void);
 

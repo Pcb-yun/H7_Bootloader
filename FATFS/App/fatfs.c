@@ -41,8 +41,8 @@ void MX_FATFS_Init(void)
 /* USER CODE BEGIN Application */
 
 /**
- * @brief 初始化 FATFS 系统
- * @return true 初始化成功, false 初始化失败
+ * @brief 初始化 Fatfs 及文件系统
+ * @return true: 成功, false: 失败
  */
 bool FATFS_Init(void)
 {

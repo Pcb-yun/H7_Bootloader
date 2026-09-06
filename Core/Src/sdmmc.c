@@ -147,8 +147,8 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* sdHandle)
 /* USER CODE BEGIN 1 */
 
 /**
- * @brief 自定义初始化SDMMC1
- * @return 初始化状态
+ * @brief 初始化SDMMC
+ * @return true: 成功, false: 失败
  */
 bool SD_Init(void)
 {
@@ -163,4 +163,3 @@ bool SD_Init(void)
 }
 
 /* USER CODE END 1 */
-

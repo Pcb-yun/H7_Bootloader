@@ -21,6 +21,9 @@
 #include "octospi.h"
 
 /* USER CODE BEGIN 0 */
+#include "Boot.h"
+
+static bool OSPI_Read_NOR_ID(uint8_t *pID);
 
 /* USER CODE END 0 */
 
@@ -37,6 +40,7 @@ void MX_OCTOSPI1_Init(void)
   OSPIM_CfgTypeDef sOspiManagerCfg = {0};
 
   /* USER CODE BEGIN OCTOSPI1_Init 1 */
+  sOspiManagerCfg.Req2AckTime = 1;
 
   /* USER CODE END OCTOSPI1_Init 1 */
   hospi1.Instance = OCTOSPI1;
@@ -174,5 +178,56 @@ void HAL_OSPI_MspDeInit(OSPI_HandleTypeDef* ospiHandle)
 
 /* USER CODE BEGIN 1 */
 
-/* USER CODE END 1 */
+/**
+ * @brief 初始化外部flash
+ * @return true: 成功, false: 失败
+ */
+bool SPIFlash_Init(uint8_t *pID)
+{
+  MX_OCTOSPI1_Init();
+  if (!OSPI_Read_NOR_ID(pID))
+    return false;
 
+  return true;
+}
+
+/**
+ * @brief  读取 NOR Flash 的 JEDEC ID
+ * @param  hospi: OCTOSPI 句柄指针
+ * @param  pID:   用于存储读取到的 ID 的指针 (3字节)
+ * @retval HAL_OK 表示成功，否则为失败
+ */
+static bool OSPI_Read_NOR_ID(uint8_t *pID)
+{
+  OSPI_RegularCmdTypeDef sCommand = {0};
+  uint8_t rxBuffer[3] = {0};
+
+  sCommand.OperationType = HAL_OSPI_OPTYPE_COMMON_CFG;
+  sCommand.FlashId = HAL_OSPI_FLASH_ID_1;
+  sCommand.Instruction = 0x9F;
+  sCommand.InstructionMode = HAL_OSPI_INSTRUCTION_1_LINE;
+  sCommand.InstructionSize = HAL_OSPI_INSTRUCTION_8_BITS;
+  sCommand.AddressMode = HAL_OSPI_ADDRESS_NONE;
+  sCommand.DataMode = HAL_OSPI_DATA_1_LINE;
+  sCommand.DummyCycles = 0;
+  sCommand.NbData = 3;
+  sCommand.DQSMode = HAL_OSPI_DQS_DISABLE;
+  sCommand.SIOOMode = HAL_OSPI_SIOO_INST_EVERY_CMD;
+
+  if (HAL_OSPI_Command(&hospi1, &sCommand, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+    return false;
+
+
+  if (HAL_OSPI_Receive(&hospi1, rxBuffer, HAL_OSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK)
+    return false;
+
+  if (pID)
+  {
+    pID[0] = rxBuffer[0]; // 制造商 ID
+    pID[1] = rxBuffer[1]; // 设备 ID
+    pID[2] = rxBuffer[2]; // 容量 ID
+  }
+
+  return true;
+}
+/* USER CODE END 1 */

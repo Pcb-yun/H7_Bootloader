@@ -13,11 +13,9 @@
 #include "usart.h"
 #include "sdmmc.h"
 #include "fatfs.h"
-// #include "octospi.h"
+#include "octospi.h"
 
 #define APP_ADDRESS 0x08020000U // 业务代码起始地址
-#define HEADER_OFFSET 0x400U    // 业务代码头偏移量
-
 
 #define BOOT_CLEAR_SCREEN "\033[2J\033[H\033[1;1H\033[2J" // 清除屏幕
 
@@ -33,7 +31,8 @@ static void Boot_Printf(const char *fmt, ...);
 static void Boot_Version(void);
 static void Boot_Error(void);
 typedef void (*pFunction)(void);
-static bool all_ready = false;
+static bool fs_ready = false;
+static bool w25q64_ready = false;
 
 
 /**
@@ -41,35 +40,50 @@ static bool all_ready = false;
  */
 void Bootloader_Init(void)
 {
-    MX_USART1_UART_Init();
+	bool res;
+	uint8_t flashID[3];
+
+    UART_Init();
     Boot_Version();
 
-	Boot_Printf("[BOOT][INFO] Initializing SDMMC1...\r\n");
-	if (!SD_Init()) {
-		Boot_Printf("[BOOT][WARN] SDMMC1 initialization failed.\r\n"
-					"Please check the TF card connection\r\n");
-		goto skeep;
-	} else {
-		Boot_Printf("[BOOT][INFO] SDMMC1 initialized successfully.\r\n");
-		Boot_Printf("[BOOT][INFO] Initializing FATFS...\r\n");
-		if (!FATFS_Init()) {
-			Boot_Printf("[BOOT][WARN] FATFS initialization failed.\r\n");
-			goto skeep;
-		} else {
-			Boot_Printf("[BOOT][INFO] FATFS initialized successfully.\r\n");
+    Boot_Printf("[BOOT][INFO] Init SPI Flash\r\n");
+    res = SPIFlash_Init(flashID);
+    if (res)
+	{
+		Boot_Printf("[BOOT][INFO] SPI Flash init success, ID: 0x%02X 0x%02X 0x%02X\r\n", flashID[0], flashID[1], flashID[2]);
+    }
+	else
+	{
+        Boot_Printf("[BOOT][WARN] SPI Flash init failed\r\n");
+    }
+
+    Boot_Printf("[BOOT][INFO] Init SDMMC1\r\n");
+    res = SD_Init();
+
+    if (!res)
+    {
+        Boot_Printf("[BOOT][WARN] SDMMC1 init failed, Please check the TF card connection\r\n");
+    }
+    else
+    {
+        Boot_Printf("[BOOT][INFO] SDMMC1 init success\r\n");
+		Boot_Printf("[BOOT][INFO] Init FATFS\r\n");
+        res = FATFS_Init();
+
+        if (!res)
+        {
+            Boot_Printf("[BOOT][WARN] FATFS initialization failed, Please check the file system\r\n");
 		}
-	}
+    }
+	fs_ready = true;
+	Boot_Printf("[BOOT][INFO] FATFS init success\r\n");
 
-	// MX_OCTOSPI1_Init();
 
-	all_ready = true;
-    Boot_Printf("[BOOT][INFO] Bootloader initialized.\r\n");
-	return;
-
-skeep:
-	Boot_Printf("[BOOT][WARN] Skip Update\r\n");
 }
 
+/**
+ * @brief 引导加载程序主函数
+ */
 void Bootloader_main(void)
 {
     BootAction_t action = ACT_JUMP;
@@ -77,11 +91,11 @@ void Bootloader_main(void)
     switch(action)
     {
         case ACT_INVALID:
-            Boot_Printf("[BOOT][ERROR] Invalid header or corrupt firmware, waiting for recovery...\r\n");
+            Boot_Printf("[BOOT][ERROR] corrupt firmware, waiting for recovery...\r\n");
             Boot_Error();
             break;
         case ACT_JUMP:
-            Boot_Printf("[BOOT][INFO] jumping to entry point...\r\n\r\n");
+            Boot_Printf("[BOOT][INFO] jumping to entry point...\r\n");
             break;
         case ACT_UPDATE:
             Boot_Printf("[BOOT][INFO] Firmware update requested, entering download mode...\r\n");
@@ -111,16 +125,16 @@ void Boot_Exit(void)
 	HAL_GPIO_DeInit(LED_GPIO_Port, LED_Pin);
 
 	// 关闭全部 GPIO 端口时钟
-	__HAL_RCC_GPIOA_CLK_DISABLE();	// GPIOA（PA9/PA10 已由 UART DeInit 恢复）
-	__HAL_RCC_GPIOB_CLK_DISABLE();	// GPIOB
-	__HAL_RCC_GPIOC_CLK_DISABLE();	// GPIOC（SDMMC 引脚已由 SD DeInit 恢复）
-	__HAL_RCC_GPIOD_CLK_DISABLE();	// GPIOD（SDMMC 引脚已由 SD DeInit 恢复）
-	__HAL_RCC_GPIOE_CLK_DISABLE();	// GPIOE
-	__HAL_RCC_GPIOF_CLK_DISABLE();	// GPIOF
-	__HAL_RCC_GPIOG_CLK_DISABLE();	// GPIOG（LED 已复位，报错时由 Boot_Error 自行恢复）
-	__HAL_RCC_GPIOH_CLK_DISABLE();	// GPIOH
+	__HAL_RCC_GPIOA_CLK_DISABLE();
+	__HAL_RCC_GPIOB_CLK_DISABLE();
+	__HAL_RCC_GPIOC_CLK_DISABLE();
+	__HAL_RCC_GPIOD_CLK_DISABLE();
+	__HAL_RCC_GPIOE_CLK_DISABLE();
+	__HAL_RCC_GPIOF_CLK_DISABLE();
+	__HAL_RCC_GPIOG_CLK_DISABLE();
+	__HAL_RCC_GPIOH_CLK_DISABLE();
 
-	// 关闭 DMA1 时钟（DMA 流已在 UART DeInit 中复位）
+	// 关闭 DMA1 时钟
 	__HAL_RCC_DMA1_CLK_DISABLE();
 
 	// 关闭全局中断，禁止响应一切可屏蔽中断
@@ -168,7 +182,6 @@ void JumpToApplication(void)
 	SCB_DisableICache();
 */
 
-
 	// 恢复全局中断（此时中断均被禁用且无挂起，等效于复位后状态），交由 App 接管
 	__enable_irq();
 
@@ -207,19 +220,18 @@ static void Boot_Version(void)
 
 /**
  * @brief 出现无法引导的错误
- * @note  本函数可能在 Boot_Exit 清理 GPIO 之后被调用，需自行恢复报错环境
  */
 static void Boot_Error(void)
 {
 	volatile uint32_t delay;
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	// 重新使能 GPIOG 时钟并初始化 LED 引脚（Boot_Exit 可能已将其复位）
+	// 重新使能 GPIOG 时钟并初始化 LED 引脚
 	__HAL_RCC_GPIOG_CLK_ENABLE();
-	GPIO_InitStruct.Pin = LED_Pin;	// LED 引脚
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;	// 推挽输出
-	GPIO_InitStruct.Pull = GPIO_NOPULL;	// 无上下拉
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;	// 低速
+	GPIO_InitStruct.Pin = LED_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
 
 	while (1)

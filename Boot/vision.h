@@ -14,11 +14,10 @@
 #define BOOT_VERSION_MINOR 1
 #define BOOT_VERSION_PATCH 0
 
-#define BOOT_VERSION_INFO \
-    "A simple STM32 H7 bootloader.\r\n" \
+#define BOOT_VERSION_INFO                          \
+    "A simple STM32 H7 bootloader.\r\n"            \
     "More information is available on GitHub:\r\n" \
-    "https://github.com/Pcb-yun\r\n"
-
+    "https://github.com/Pcb-yun/H7_Bootloader\r\n"
 
 
 #endif /* __VISION_H__ */
