@@ -46,7 +46,10 @@ virtualFolder:
       folders:
         - name: STM32H7xx_HAL_Driver
           files:
-            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_exti.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_gpio.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_rcc.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_utils.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
@@ -58,10 +61,12 @@ virtualFolder:
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_dma.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_ospi.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_sdmmc.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_delayblock.c
@@ -71,8 +76,7 @@ virtualFolder:
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mmc_ex.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
             - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
-            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
-            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+            - path: Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usart.c
           folders: []
         - name: CMSIS
           files:
@@ -87,11 +91,11 @@ virtualFolder:
             - path: Middlewares/Third_Party/FatFs/src/ff.c
             - path: Middlewares/Third_Party/FatFs/src/ff_gen_drv.c
             - path: Middlewares/Third_Party/FatFs/src/option/syscall.c
-            - path: Middlewares/Third_Party/FatFs/src/option/cc936.c
           folders: []
     - name: boot
       files:
         - path: Boot/Boot.c
+        - path: Boot/flash.c
       folders: []
     - name: ::CMSIS
       files: []
@@ -107,6 +111,7 @@ targets:
         - USE_PWR_LDO_SUPPLY
         - USE_HAL_DRIVER
         - STM32H723xx
+        - USE_FULL_LL_DRIVER
       incList:
         - Core/Inc
         - Drivers/STM32H7xx_HAL_Driver/Inc
@@ -117,6 +122,7 @@ targets:
         - FATFS/App
         - Middlewares/Third_Party/FatFs/src
         - Boot
+        - Drivers/nanoprintf
         - .cmsis/include
         - MDK-ARM/RTE/_H7_Bootloader
       libList: []
@@ -132,21 +138,27 @@ targets:
         options:
           version: 4
           afterBuildTasks: []
-          asm-compiler: {}
+          asm-compiler:
+            defines: []
           beforeBuildTasks: []
           c/cpp-compiler:
             CXX_FLAGS: --diag_suppress=1 --diag_suppress=1295
             C_FLAGS: --diag_suppress=1 --diag_suppress=1295
             c99-mode: true
+            gnu-extensions: true
             one-elf-section-per-function: true
             optimization: level-0
             warnings: all-warnings
           global:
             output-debug-info: enable
+            use-microLIB: false
           linker:
             $outputTaskExcludes:
               - .bin
             output-format: elf
+            ro-base: ""
+            rw-base: ""
+            xo-base: ""
         scatterFilePath: MDK-ARM/stm32h723xg_flash.sct
         storageLayout:
           RAM:

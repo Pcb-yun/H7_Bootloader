@@ -25,8 +25,7 @@ bool SPIFlash_Init(uint8_t *pID);
 bool SD_Init(void);
 bool FATFS_Init(void);
 
-
-
+void Boot_Printf(const char *fmt, ...);
 
 
 

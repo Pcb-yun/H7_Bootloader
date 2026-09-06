@@ -1,0 +1,3 @@
+[submodule "Drivers/nanoprintf"]
+	path = Drivers/nanoprintf
+	url = https://github.com/charlesnicholson/nanoprintf.git

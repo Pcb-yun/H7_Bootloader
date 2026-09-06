@@ -80,29 +80,12 @@ void HAL_OSPI_MspInit(OSPI_HandleTypeDef* ospiHandle)
 {
 
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
   if(ospiHandle->Instance==OCTOSPI1)
   {
   /* USER CODE BEGIN OCTOSPI1_MspInit 0 */
 
   /* USER CODE END OCTOSPI1_MspInit 0 */
-
-  /** Initializes the peripherals clock
-  */
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_OSPI;
-    PeriphClkInitStruct.PLL2.PLL2M = 2;
-    PeriphClkInitStruct.PLL2.PLL2N = 32;
-    PeriphClkInitStruct.PLL2.PLL2P = 2;
-    PeriphClkInitStruct.PLL2.PLL2Q = 2;
-    PeriphClkInitStruct.PLL2.PLL2R = 3;
-    PeriphClkInitStruct.PLL2.PLL2RGE = RCC_PLL2VCIRANGE_3;
-    PeriphClkInitStruct.PLL2.PLL2VCOSEL = RCC_PLL2VCOWIDE;
-    PeriphClkInitStruct.PLL2.PLL2FRACN = 0;
-    PeriphClkInitStruct.OspiClockSelection = RCC_OSPICLKSOURCE_PLL2;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
-    {
-      Error_Handler();
-    }
+    LL_RCC_SetOSPIClockSource(LL_RCC_OSPI_CLKSOURCE_PLL2R);
 
     /* OCTOSPI1 clock enable */
     __HAL_RCC_OCTOSPIM_CLK_ENABLE();
@@ -231,3 +214,4 @@ static bool OSPI_Read_NOR_ID(uint8_t *pID)
   return true;
 }
 /* USER CODE END 1 */
+
