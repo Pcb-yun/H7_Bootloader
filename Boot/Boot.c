@@ -118,12 +118,12 @@ void Bootloader_main(void)
 
     if (App_Check())
     {
-        Boot_Printf("[BOOT][INFO] Application data is valid, ");
+        Boot_Printf("[BOOT][INFO] Application data valid, ");
         Boot_Printf("Build: %s %s\r\n", pHand->build_date, pHand->build_time);
     }
     else
     {
-        Boot_Printf("[BOOT][ERROR] Application data is invalid\r\n");
+        Boot_Printf("[BOOT][ERROR] Application data invalid\r\n");
         action = ACT_INVALID;
     }
 
@@ -324,7 +324,7 @@ static bool Read_BootShared(void)
 
     if (pBoot->magic != BOOT_SHARED_MAGIC)
     {
-        Boot_Printf("[BOOT][WARN] Shared data is invalid\r\n");
+        Boot_Printf("[BOOT][WARN] Shared data invalid\r\n");
         return false;
     }
 
@@ -343,7 +343,7 @@ static bool Read_BootShared(void)
     boot_shared.filePath[sizeof(boot_shared.filePath) - 1] = '\0';  // 末尾兜底置空
     shared_ready = true;
 
-    Boot_Printf("[BOOT][INFO] Shared data is ready\r\n");
+    Boot_Printf("[BOOT][INFO] Shared data ready\r\n");
     return true;
 }
 

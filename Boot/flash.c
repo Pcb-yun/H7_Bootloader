@@ -179,6 +179,8 @@ static bool Flash_Erase(uint32_t startAddr, uint32_t size)
 	uint32_t sectorError = 0;
 	uint32_t firstSector;
 	uint32_t lastSector;
+	uint32_t sector;
+	uint32_t sectorAddr;
 
 	firstSector = (startAddr - FLASH_BASE) / FLASH_SECTOR_SIZE;
 	lastSector = (startAddr + size - 1U - FLASH_BASE) / FLASH_SECTOR_SIZE;
@@ -187,17 +189,27 @@ static bool Flash_Erase(uint32_t startAddr, uint32_t size)
 
 	eraseInit.TypeErase    = FLASH_TYPEERASE_SECTORS;		// 按扇区擦除
 	eraseInit.Banks        = FLASH_BANK_1;				// 单 Bank
-	eraseInit.Sector       = firstSector;				// 起始扇区
-	eraseInit.NbSectors    = lastSector - firstSector + 1U;	// 擦除扇区数量
+	eraseInit.NbSectors    = 1U;					// 每次擦除一个扇区
 	eraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;		// 电压范围
 
-	if (HAL_FLASHEx_Erase(&eraseInit, &sectorError) != HAL_OK)
+	for (sector = firstSector; sector <= lastSector; sector++)
 	{
-		HAL_FLASH_Lock();
-		return false;
+		eraseInit.Sector = sector;
+		sectorAddr = FLASH_BASE + sector * FLASH_SECTOR_SIZE;
+
+		Boot_Printf("\r[BOOT][INFO] erase: 0x%08X", sectorAddr);
+
+		if (HAL_FLASHEx_Erase(&eraseInit, &sectorError) != HAL_OK)
+		{
+			Boot_Printf("\r[BOOT][ERROR] erase failed at sector %lu (0x%08X)\r\n",
+			            (unsigned long)sector, sectorAddr);
+			HAL_FLASH_Lock();
+			return false;
+		}
 	}
 
 	HAL_FLASH_Lock();
+	Boot_Printf("\r[BOOT][INFO] erase success    \r\n");
 	return true;
 }
 
