@@ -327,7 +327,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>1</uGnu>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>5</v6Lang>
             <v6LangP>3</v6LangP>
@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_PWR_LDO_SUPPLY,USE_HAL_DRIVER,STM32H723xx,USE_FULL_LL_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../Boot;../Drivers/nanoprintf</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../Boot;../Drivers/nanoprintf;..\Drivers\KK_IHEX</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1640,6 +1640,11 @@
               <FileName>flash.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Boot\flash.c</FilePath>
+            </File>
+            <File>
+              <FileName>kk_ihex_read.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drivers\KK_IHEX\kk_ihex_read.c</FilePath>
             </File>
           </Files>
         </Group>

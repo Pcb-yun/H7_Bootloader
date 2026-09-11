@@ -17,4 +17,19 @@ version: "2.1"
 options:
     H7_Bootloader:
         files: {}
-        virtualPathFiles: {}
+        virtualPathFiles:
+            <virtual_root>/Application/User/Core/octospi.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_ll_exti.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_ll_gpio.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_ll_rcc.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_ll_utils.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_ll_dma.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_hal_ospi.c: ""
+            <virtual_root>/Drivers/STM32H7xx_HAL_Driver/stm32h7xx_ll_usart.c: ""
+            <virtual_root>/Application/User/FATFS/Target/bsp_driver_sd.c: ""
+            <virtual_root>/Application/User/FATFS/Target/sd_diskio.c: ""
+            <virtual_root>/Application/User/FATFS/App/fatfs.c: ""
+            <virtual_root>/Middlewares/FatFs/diskio.c: ""
+            <virtual_root>/Middlewares/FatFs/ff.c: ""
+            <virtual_root>/Middlewares/FatFs/ff_gen_drv.c: ""
+            <virtual_root>/Middlewares/FatFs/syscall.c: ""

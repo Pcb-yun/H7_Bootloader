@@ -146,7 +146,8 @@ void Bootloader_main(void)
     {
         case ACT_INVALID:
 			// 校验不通过，无法启动
-            Boot_Printf("[BOOT][ERROR] Firmware validation fails. Please power cycle.\r\n");
+        invalid:
+            Boot_Printf("[BOOT][ERROR] Firmware validation failed - corrupt image. Power-cycle the device first, then reflash via debugger.\r\n");
             Boot_Error();
             break;
         case ACT_UPDATE:
@@ -163,10 +164,9 @@ void Bootloader_main(void)
 			// 直接跳转
             if (!App_Check())
             {
-                Boot_Printf("[BOOT][ERROR] Firmware validation failed - corrupt image. Reflash via debugger, then power-cycle the device to reset backup domain.\r\n");
-                Boot_Error();
+                goto invalid;
             }
-			Boot_Printf("[BOOT][INFO] Jumping to entry point...\r\n");
+            Boot_Printf("[BOOT][INFO] Jumping to entry point...\r\n");
             break;
 	}
 

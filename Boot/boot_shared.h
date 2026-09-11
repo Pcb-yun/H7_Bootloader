@@ -10,6 +10,7 @@
 #define APP_ADDRESS       0x08020000U // 业务代码起始地址
 #define APP_HAND_ADDRESS  0x08020400U // 业务代码校验头地址
 #define BOOT_SHARED_ADD   0x38800000U // 引导加载器共享内存地址（备份 SRAM）
+#define W25Q64_ADDRESS    0x90000000U // 片外 Flash 起始地址
 
 typedef enum {
     BOOT_MODE_NORMAL = 0, // 正常启动模式：直接跳转业务代码

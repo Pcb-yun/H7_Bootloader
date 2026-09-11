@@ -1,3 +1,6 @@
 [submodule "Drivers/nanoprintf"]
 	path = Drivers/nanoprintf
 	url = https://github.com/charlesnicholson/nanoprintf.git
+[submodule "Drivers/KK_IHEX"]
+	path = Drivers/KK_IHEX
+	url = https://github.com/arkku/ihex.git

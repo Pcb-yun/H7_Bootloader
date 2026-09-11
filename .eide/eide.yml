@@ -96,6 +96,7 @@ virtualFolder:
       files:
         - path: Boot/Boot.c
         - path: Boot/flash.c
+        - path: Drivers/KK_IHEX/kk_ihex_read.c
       folders: []
     - name: ::CMSIS
       files: []
@@ -123,6 +124,7 @@ targets:
         - Middlewares/Third_Party/FatFs/src
         - Boot
         - Drivers/nanoprintf
+        - Drivers/KK_IHEX
         - .cmsis/include
         - MDK-ARM/RTE/_H7_Bootloader
       libList: []
@@ -145,7 +147,6 @@ targets:
             CXX_FLAGS: --diag_suppress=1 --diag_suppress=1295
             C_FLAGS: --diag_suppress=1 --diag_suppress=1295
             c99-mode: true
-            gnu-extensions: true
             one-elf-section-per-function: true
             optimization: level-0
             warnings: all-warnings
